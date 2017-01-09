@@ -1,0 +1,376 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{436C3748-C4E0-4BC9-A343-78D63F908380}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MPE.SS</RootNamespace>
+    <AssemblyName>MPE.SS</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="LiteDB, Version=2.0.4.0, Culture=neutral, PublicKeyToken=4ee40123013c9f27, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiteDB.2.0.4\lib\net35\LiteDB.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MongoDB.Bson, Version=2.4.0.70, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MongoDB.Bson.2.4.0\lib\net45\MongoDB.Bson.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.4.1\lib\net45\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RazorEngine, Version=3.9.3.0, Culture=neutral, PublicKeyToken=9ee697374c7e744a, processorArchitecture=MSIL">
+      <HintPath>..\packages\RazorEngine.3.9.3\lib\net45\RazorEngine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SimpleInjector, Version=3.3.2.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
+      <HintPath>..\packages\SimpleInjector.3.3.2\lib\net45\SimpleInjector.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SimpleInjector.Extensions.ExecutionContextScoping, Version=3.3.2.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
+      <HintPath>..\packages\SimpleInjector.Extensions.ExecutionContextScoping.3.3.2\lib\net45\SimpleInjector.Extensions.ExecutionContextScoping.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.PowerShell.5.ReferenceAssemblies.1.0.0\lib\net4\System.Management.Automation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Threading.Tasks" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.2\lib\net45\System.Web.Helpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.2\lib\net45\System.Web.WebPages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.2\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.2\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Topshelf, Version=3.3.154.0, Culture=neutral, PublicKeyToken=b800c4cfcdeea87b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Topshelf.3.3.1\lib\net40-full\Topshelf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Topshelf.SimpleInjector, Version=1.0.0.17, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Topshelf.SimpleInjector.1.0.0.17\lib\net40\Topshelf.SimpleInjector.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App.cs" />
+    <Compile Include="Constants\AdditionalConstant.cs" />
+    <Compile Include="Constants\ChartAlias.cs" />
+    <Compile Include="Constants\DatasetNames.cs" />
+    <Compile Include="Constants\IgnoreConstants.cs" />
+    <Compile Include="Enums\AlertLevel.cs" />
+    <Compile Include="Enums\AppState.cs" />
+    <Compile Include="Enums\DataCollector.cs" />
+    <Compile Include="Enums\State.cs" />
+    <Compile Include="Exceptions\InvalidValidationException.cs" />
+    <Compile Include="Interfaces\IAlertService.cs" />
+    <Compile Include="Interfaces\IAlertTest.cs" />
+    <Compile Include="Interfaces\IBaselineService.cs" />
+    <Compile Include="Interfaces\IChartDataGenerator.cs" />
+    <Compile Include="Interfaces\IConductor.cs" />
+    <Compile Include="Interfaces\ICsvService.cs" />
+    <Compile Include="Interfaces\IDataCollector.cs" />
+    <Compile Include="Interfaces\IFileRepository.cs" />
+    <Compile Include="Interfaces\IFileService.cs" />
+    <Compile Include="Interfaces\IGraphRenderService.cs" />
+    <Compile Include="Interfaces\INotifier.cs" />
+    <Compile Include="Interfaces\INotifierService.cs" />
+    <Compile Include="Interfaces\IReportRender.cs" />
+    <Compile Include="Interfaces\IRepository.cs" />
+    <Compile Include="Interfaces\IRequestConductor.cs" />
+    <Compile Include="Interfaces\IRequestTest.cs" />
+    <Compile Include="Interfaces\IServerConductor.cs" />
+    <Compile Include="Interfaces\IServerTest.cs" />
+    <Compile Include="Interfaces\ITest.cs" />
+    <Compile Include="Interfaces\ITestCure.cs" />
+    <Compile Include="Interfaces\IValidator.cs" />
+    <Compile Include="Interfaces\IWorker.cs" />
+    <Compile Include="Logic\Alerts\AlertService.cs" />
+    <Compile Include="Logic\Alerts\AlertTestExecutor.cs" />
+    <Compile Include="Logic\Alerts\Notifiers\ConsoleNotifier.cs" />
+    <Compile Include="Logic\Alerts\Notifiers\FileNotifier.cs" />
+    <Compile Include="Logic\Alerts\Notifiers\NotifierService.cs" />
+    <Compile Include="Logic\Attributes\CsvPosition.cs" />
+    <Compile Include="Logic\Attributes\RedisFieldAttribute.cs" />
+    <Compile Include="Logic\Charts\BaselineService.cs" />
+    <Compile Include="Logic\Charts\HaProxy\HaProxyResponseChart.cs" />
+    <Compile Include="Logic\Charts\HaProxy\HaProxyNetworkChart.cs" />
+    <Compile Include="Logic\Conductors\Conductor.cs" />
+    <Compile Include="Logic\Conductors\RequestConductor.cs" />
+    <Compile Include="Logic\Conductors\ServerConductor.cs" />
+    <Compile Include="Logic\Configurations\AppConfiguration.cs" />
+    <Compile Include="Constants\SystemConstant.cs" />
+    <Compile Include="Enums\ReportItemState.cs" />
+    <Compile Include="Interfaces\IApplicationConfiguration.cs" />
+    <Compile Include="Interfaces\IApp.cs" />
+    <Compile Include="Interfaces\IBuilder.cs" />
+    <Compile Include="Interfaces\IConfigurationService.cs" />
+    <Compile Include="Logic\Builders\Builder.cs" />
+    <Compile Include="Logic\ConfigurationService.cs" />
+    <Compile Include="Logic\Configurations\ApplicationConfiguration.cs" />
+    <Compile Include="Logic\CsvService.cs" />
+    <Compile Include="Logic\DataCollectors\HaProxyCollector.cs" />
+    <Compile Include="Logic\DataCollectors\MongoInfoCollector.cs" />
+    <Compile Include="Logic\DataCollectors\ServerUtilizationCollector.cs" />
+    <Compile Include="Logic\Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Logic\Charts\ChartAbstractBase.cs" />
+    <Compile Include="Logic\Charts\Mongo\MongoNetworkChart.cs" />
+    <Compile Include="Logic\Charts\Mongo\MongoActionChart.cs" />
+    <Compile Include="Logic\Charts\Redis\RedisCommandChart.cs" />
+    <Compile Include="Logic\Charts\Servers\ServerCpuChart.cs" />
+    <Compile Include="Logic\Charts\Servers\ServerMemoryChart.cs" />
+    <Compile Include="Logic\Charts\Redis\RedisMemoryChart.cs" />
+    <Compile Include="Logic\Charts\Servers\ServerNetworkChart.cs" />
+    <Compile Include="Logic\Repositories\JsonRepository.cs" />
+    <Compile Include="Logic\Repositories\LiteDbRepository.cs" />
+    <Compile Include="Logic\Workers\AlertWorker.cs" />
+    <Compile Include="Logic\Workers\ChartWorker.cs" />
+    <Compile Include="Logic\Workers\DataCollectorWorker.cs" />
+    <Compile Include="Logic\Workers\GarbageCollectorWorker.cs" />
+    <Compile Include="Logic\Workers\TestWorker.cs" />
+    <Compile Include="Models\Alert.cs" />
+    <Compile Include="Models\AlertThreshold.cs" />
+    <Compile Include="Models\Baseline.cs" />
+    <Compile Include="Models\Entity.cs" />
+    <Compile Include="Models\Graphs\Chart.cs" />
+    <Compile Include="Models\Graphs\Color.cs" />
+    <Compile Include="Models\Graphs\DataSet.cs" />
+    <Compile Include="Models\Graphs\Point.cs" />
+    <Compile Include="Models\HaProxy\HapInfo.cs" />
+    <Compile Include="Models\HaProxy\HapServer.cs" />
+    <Compile Include="Models\MongoDB\MongoConnections.cs" />
+    <Compile Include="Models\MongoDB\MongoInfo.cs" />
+    <Compile Include="Models\MongoDB\MongoNetwork.cs" />
+    <Compile Include="Models\MongoDB\MongoOpcounters.cs" />
+    <Compile Include="Models\MongoDB\TotalReadersWriters.cs" />
+    <Compile Include="Models\Notification.cs" />
+    <Compile Include="Models\RedisInfo\RedisClient.cs" />
+    <Compile Include="Models\RedisInfo\RedisClientInfo.cs" />
+    <Compile Include="Models\RedisInfo\RedisCpuInfo.cs" />
+    <Compile Include="Logic\DataCollectors\RedisInfoCollector.cs" />
+    <Compile Include="Models\RedisInfo\RedisInfo.cs" />
+    <Compile Include="Models\RedisInfo\RedisMemoryInfo.cs" />
+    <Compile Include="Models\RedisInfo\RedisPersistanceInfo.cs" />
+    <Compile Include="Models\RedisInfo\RedisReplicationInfo.cs" />
+    <Compile Include="Models\RedisInfo\RedisServerInfo.cs" />
+    <Compile Include="Models\RedisInfo\RedisStatisticInfo.cs" />
+    <Compile Include="Logic\DataCollectors\ServerInfoCollector.cs" />
+    <Compile Include="Logic\Extensions\StringExtensions.cs" />
+    <Compile Include="Logic\FileService.cs" />
+    <Compile Include="Logic\PowerShellService.cs" />
+    <Compile Include="Logic\Rendering\BootstrapReportRender.cs" />
+    <Compile Include="Logic\Rendering\Graphs\GraphRenderService.cs" />
+    <Compile Include="Logic\Rendering\ViewModels\View.cs" />
+    <Compile Include="Logic\TestCures\NullCure.cs" />
+    <Compile Include="Logic\TestCures\PowerShellStringInputCureAbstract.cs" />
+    <Compile Include="Logic\TestCures\AppPoolStartCure.cs" />
+    <Compile Include="Logic\TestCures\WindowsFeatureInstallCure.cs" />
+    <Compile Include="Logic\TestCures\ServiceStartCure.cs" />
+    <Compile Include="Logic\Tests\PowerShell\AppPoolAlive.cs" />
+    <Compile Include="Logic\Tests\Base\RequestTestAbstract.cs" />
+    <Compile Include="Logic\Tests\PowerShell\PortOpenTest.cs" />
+    <Compile Include="Logic\Tests\PowerShell\WindowsFeatureTest.cs" />
+    <Compile Include="Logic\Tests\Requests\GzipRequestTest.cs" />
+    <Compile Include="Logic\Tests\Base\PowerShellTestAbstract.cs" />
+    <Compile Include="Logic\Tests\Requests\SslRequestTest.cs" />
+    <Compile Include="Logic\Tests\Requests\StatusRequestTest.cs" />
+    <Compile Include="Logic\Tests\PowerShell\ScheduledTaskAlive.cs" />
+    <Compile Include="Logic\Tests\PowerShell\ServiceAlive.cs" />
+    <Compile Include="Logic\Validators\ConfigurationValidator.cs" />
+    <Compile Include="Logic\Validators\CredentialValidator.cs" />
+    <Compile Include="Logic\Validators\RequestValidator.cs" />
+    <Compile Include="Logic\Validators\ServerValidator.cs" />
+    <Compile Include="Logic\Validators\ValidatorBase.cs" />
+    <Compile Include="Models\ServerInfo\Bios.cs" />
+    <Compile Include="Models\ServerInfo\Boottime.cs" />
+    <Compile Include="Models\Configuration.cs" />
+    <Compile Include="Models\ServerInfo\Cpu.cs" />
+    <Compile Include="Models\Credential.cs" />
+    <Compile Include="Models\Connection.cs" />
+    <Compile Include="Models\Data.cs" />
+    <Compile Include="Models\ServerInfo\Disk.cs" />
+    <Compile Include="Models\Graphs\Edge.cs" />
+    <Compile Include="Models\FileEntity.cs" />
+    <Compile Include="Models\Graphs\Graph.cs" />
+    <Compile Include="Models\Graphs\Node.cs" />
+    <Compile Include="Models\Graphs\NodeSummarySection.cs" />
+    <Compile Include="Models\ServerInfo\Installdate.cs" />
+    <Compile Include="Models\ServerInfo\Ip.cs" />
+    <Compile Include="Models\ServerInfo\NetworkUtilization.cs" />
+    <Compile Include="Models\ServerInfo\OS.cs" />
+    <Compile Include="Models\ServerInfo\RAM.cs" />
+    <Compile Include="Models\Report.cs" />
+    <Compile Include="Models\ReportItem.cs" />
+    <Compile Include="Models\Request.cs" />
+    <Compile Include="Models\Server.cs" />
+    <Compile Include="Models\ServerInfo\ServerInfo.cs" />
+    <Compile Include="Models\ServerInfo\ServerUtilization.cs" />
+    <Compile Include="Models\ServerInfo\SystemEvent.cs" />
+    <Compile Include="Models\ServerInfo\SystemInfo.cs" />
+    <Compile Include="Models\Website.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Logic\Workers\Worker.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <EmbeddedResource Include="Logic\Scripts\OpenPortTest.ps1" />
+    <EmbeddedResource Include="Logic\Rendering\Views\Report.cshtml" />
+    <EmbeddedResource Include="Logic\Scripts\SystemInfo.ps1" />
+    <EmbeddedResource Include="Logic\Scripts\SS.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Logic\Scripts\Get-Server-Utilization.ps1" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Profiles\Test.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ReadMe.txt" />
+    <EmbeddedResource Include="Ressources\SS.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ressources\SS.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ressources\Chart.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ressources\d3.v3.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ressources\jquery.qtip.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ressources\bootstrap-theme.min.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ressources\bootstrap.min.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ressources\bootstrap.min.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ressources\cytoscape-dagre.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ressources\cytoscape-qtip.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ressources\cytoscape.min.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ressources\dagre.min.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ressources\jquery-3.1.1.min.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ressources\jquery.qtip.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <UsingTask TaskName="CosturaCleanup" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll" TaskFactory="CodeTaskFactory">
+    <ParameterGroup>
+      <Config Output="false" Required="true" ParameterType="Microsoft.Build.Framework.ITaskItem" />
+      <Files Output="false" Required="true" ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
+    </ParameterGroup>
+    <Task Evaluate="true">
+      <Reference xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Include="System.Xml" />
+      <Reference xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Include="System.Xml.Linq" />
+      <Using xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Namespace="System" />
+      <Using xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Namespace="System.IO" />
+      <Using xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Namespace="System.Xml.Linq" />
+      <Code xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Type="Fragment" Language="cs"><![CDATA[
+var config = XElement.Load(Config.ItemSpec).Elements("Costura").FirstOrDefault();
+
+if (config == null) return true;
+
+var excludedAssemblies = new List<string>();
+var attribute = config.Attribute("ExcludeAssemblies");
+if (attribute != null)
+    foreach (var item in attribute.Value.Split('|').Select(x => x.Trim()).Where(x => x != string.Empty))
+        excludedAssemblies.Add(item);
+var element = config.Element("ExcludeAssemblies");
+if (element != null)
+    foreach (var item in element.Value.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).Where(x => x != string.Empty))
+        excludedAssemblies.Add(item);
+
+var filesToCleanup = Files.Select(f => f.ItemSpec).Where(f => !excludedAssemblies.Contains(Path.GetFileNameWithoutExtension(f), StringComparer.InvariantCultureIgnoreCase));
+
+foreach (var item in filesToCleanup)
+  File.Delete(item);
+]]></Code>
+    </Task>
+  </UsingTask>
+  <Target Name="CleanReferenceCopyLocalPaths" AfterTargets="AfterBuild;NonWinFodyTarget">
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

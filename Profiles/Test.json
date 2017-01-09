@@ -1,0 +1,340 @@
+﻿{
+    "Alias": "Kilroy",
+    "Header": "Kilroy Staging Setup",
+    "Description": "This will take the configuration for the Kilroy staging infrestructure, hosted at Novicell, and run tests based on the configuration file. This includes checking on if app-pools, windows-services, scheduled tasks are running and enabled along with ensuring that windows features are enabled. Besides this it will check if a port to another server is oppened. A final set of tests is based on URLs that get requested, it will the check if compression and SSL is enabled along with the correct status code",
+    "Credentials": [
+        {
+            "Alias": "default",
+            "Username": "default",
+            "Password": "default"
+        },
+        {
+            "Alias": "User",
+            "Username": "",
+            "Password": ""
+        }
+    ],
+    "Servers": [
+        {
+            "CredentialAlias": "default",
+            "Label": "CloudFlare",
+            "DisplayName": "CloudFlare",
+            "Name": "CloudFlare",
+            "RequiredConnections": [
+                {
+                    "Host": "HaProxy",
+                    "Port": 80,
+                    "Name": "HTTP"
+                },
+                {
+                    "Host": "HaProxy",
+                    "Port": 443,
+                    "Name": "HTTPS"
+                }
+            ],
+            "Ignore": [
+                "Connections",
+                "ServerUtilizationCollector",
+                "ServerInfoCollector",
+                "MongoInfoCollector",
+                "RedisInfoCollector"
+            ]
+        },
+        {
+            "CredentialAlias": "default",
+            "Label": "HaProxy",
+            "DisplayName": "HaP01",
+            "Name": "10.0.55.70",
+            "RequiredConnections": [
+                {
+                    "Host": "KIL-STA-WEB-01",
+                    "Port": 80,
+                    "Name": "HTTP"
+                },
+                {
+                    "Host": "KIL-STA-WEB-02",
+                    "Port": 80,
+                    "Name": "HTTP"
+                },
+                {
+                    "Host": "KIL-STA-WEB-02",
+                    "Port": 443,
+                    "Name": "HTTPS"
+                }
+            ],
+            "Ignore": [
+                "Connections",
+                "ServerUtilizationCollector",
+                "ServerInfoCollector",
+                "MongoInfoCollector",
+                "RedisInfoCollector"
+            ],
+            "Additionals": {
+                "HaProxy.Username": "admin",
+                "HaProxy.Password": "a625d02a015c480fadb8d476701a55e7",
+                "HaProxy.StatsPath": "http://10.0.55.70/haproxy_stats"
+            } 
+        },
+        {
+            "CredentialAlias": "default",
+            "Label": "SQL",
+            "DisplayName": "SQL05",
+            "Name": "NC-SQL05",
+            "Ignore": [
+                "DataCollector"
+            ]
+        },
+        {
+            "CredentialAlias": "User",
+            "Label": "WEB",
+            "DisplayName": "WEB-01",
+            "Name": "KIL-STA-WEB-01",
+            "AppPools": [
+                "api.web.mpe.dk",
+                "benns.dk",
+                "web.mpe.dk",
+                "media.web.mpe.dk",
+                "umbraco.web.mpe.dk"
+            ],
+            "ScheduledTasks": [],
+            "Services": [
+                "MongoDB",
+                "OctopusDeploy Tentacle",
+                "Redis",
+                "RabbitMQ",
+                "WAS",
+                "W3SVC"
+            ],
+            "Features": [
+                "Web-Server",
+                "Web-WebServer",
+                "Web-Common-Http",
+                "Web-Default-Doc",
+                "Web-Dir-Browsing",
+                "Web-Http-Errors",
+                "Web-Static-Content",
+                "Web-Http-Redirect"
+            ],
+            "RequiredConnections": [
+                {
+                    "Host": "127.0.0.1",
+                    "Port": 80,
+                    "Name": "HTTP"
+                },
+                {
+                    "Host": "127.0.0.1",
+                    "Port": 6379,
+                    "Name": "Redis"
+                },
+                {
+                    "Host": "127.0.0.1",
+                    "Port": 27017,
+                    "Name": "MongoDB"
+                },
+                {
+                    "Host": "NC-SQL05",
+                    "Port": 1433,
+                    "Name": "SQL"
+                }
+            ],
+            "Additionals": {
+                "Redis.Password": "cdb5787ff8d64f129d42e16e48a2f2fafa79b9824a9a48cfb10ce0da1e2c750b",
+                "Redis.Port": 6379,
+                "MongoDB.Username": "admin",
+                "MongoDB.Password": "56d9e6d778ec44a18ee6ce462624fc2b",
+                "MongoDB.AuthenticationDatabase": "Data",
+                "MongoDb.Database": "Data"
+            },
+            "Alerts": [
+                {
+                    "Alias": "Memory % utilized on server",
+                    "Dataset": "Memory %",
+                    "Thresholds": [
+                        {
+                            "Threshold": 70,
+                            "Level": "Warning",
+                            "DurationInMin": 5
+                        },
+                        {
+                            "Threshold": 80,
+                            "Level": "Error",
+                            "DurationInMin": 5
+                        }
+                    ]
+                },
+                {
+                    "Alias": "CPU % utilized on server",
+                    "Dataset": "CPU %",
+                    "Thresholds": [
+                        {
+                            "Threshold": 80,
+                            "Level": "Warning",
+                            "DurationInMin": 5
+                        },
+                        {
+                            "Threshold": 90,
+                            "Level": "Error",
+                            "DurationInMin": 5
+                        }
+                    ]
+                }
+            ] 
+        },
+        {
+            "CredentialAlias": "User",
+            "Label": "WEB",
+            "DisplayName": "WEB-02",
+            "Name": "KIL-STA-WEB-02",
+            "AppPools": [
+                "api.web.mpe.dk",
+                "benns.dk",
+                "web.mpe.dk",
+                "media.web.mpe.dk",
+                "umbraco.web.mpe.dk"
+            ],
+            "ScheduledTasks": [],
+            "Services": [
+                "OctopusDeploy Tentacle",
+                "WAS",
+                "W3SVC"
+            ],
+            "Features": [
+                "Web-Server",
+                "Web-WebServer",
+                "Web-Common-Http",
+                "Web-Default-Doc",
+                "Web-Dir-Browsing",
+                "Web-Http-Errors",
+                "Web-Static-Content",
+                "Web-Http-Redirect"
+            ],
+            "RequiredConnections": [
+                {
+                    "Host": "127.0.0.1",
+                    "Port": 80,
+                    "NAme": "HTTP"
+                },
+                {
+                    "Host": "NC-SQL05",
+                    "Port": 1433,
+                    "Name": "SQL"
+                },
+                {
+                    "Host": "KIL-STA-WEB-01",
+                    "Port": 27017,
+                    "Name": "MongoDB"
+                },
+                {
+                    "Host": "KIL-STA-WEB-01",
+                    "Port": 6379,
+                    "Name": "Redis"
+                }
+            ]
+        },
+
+        {
+            "CredentialAlias": "User",
+            "Label": "DEV WEB",
+            "DisplayName": "DEV01",
+            "Name": "KILROYDEV01",
+            "AppPools": [
+                "api.kilroydev01.novicell.dk",
+                "benns.dk",
+                "umbraco.kilroydev01.novicell.dk"
+            ],
+            "ScheduledTasks": [],
+            "Services": [
+                "MongoDB",
+                "OctopusDeploy Tentacle",
+                "Redis",
+                "RabbitMQ",
+                "WAS",
+                "W3SVC"
+            ],
+            "Features": [
+                "Web-Server",
+                "Web-WebServer",
+                "Web-Common-Http",
+                "Web-Default-Doc",
+                "Web-Dir-Browsing",
+                "Web-Http-Errors",
+                "Web-Static-Content",
+                "Web-Http-Redirect"
+            ],
+            "RequiredConnections": [
+                {
+                    "Host": "127.0.0.1",
+                    "Port": 80,
+                    "Name": "HTTP"
+                },
+                {
+                    "Host": "127.0.0.1",
+                    "Port": 6379,
+                    "Name": "Redis"
+                },
+                {
+                    "Host": "127.0.0.1",
+                    "Port": 27017,
+                    "Name": "MongoDB"
+                },
+                {
+                    "Host": "NC-SQL05",
+                    "Port": 1433,
+                    "Name": "SQL"
+                }
+            ],
+            "Additionals": {
+                "Redis.Password": "1949178bd2de4165a5df900bf293dffcb415ea030ce54c9b8004e5e866003ad5",
+                "Redis.Port": 6379,
+                "MongoDB.Username": "admin",
+                "MongoDB.Password": "q1w2e3r4",
+                "MongoDB.AuthenticationDatabase": "Data",
+                "MongoDb.Database": "Data"
+            }
+        },
+        {
+            "CredentialAlias": "User",
+            "Label": "CI",
+            "DisplayName": "CI01",
+            "Name": "KILROY-CI01",
+            "AppPools": [],
+            "ScheduledTasks": [],
+            "Services": [
+                "OctopusDeploy",
+                "TCBuildAgentCore",
+                "TCBuildAgent Default",
+                "TeamCity",
+                "MSSQL$SQLEXPRESS"
+            ]
+        }
+    ],
+    "Requests": [
+        {
+            "Label": "Umbraco server",
+            "Uri": "https://umbraco.web.mpe.dk/umbraco",
+            "Ssl": true,
+            "StatusCode": 200,
+            "Gzip": false
+        },{
+            "Label": "Media server",
+            "Uri": "https://media.web.mpe.dk/",
+            "Ssl": true,
+            "StatusCode": 403,
+            "Gzip": false
+        },
+        {
+            "Label": "API server",
+            "Uri": "https://api.web.mpe.dk/api/zipcodes?countryCode=dk&zipCode=8450",
+            "Ssl": true,
+            "StatusCode": 200,
+            "Gzip": true
+        },
+        {
+            "Label": "Benns frontpage",
+            "Uri": "https://benns.dk.web.mpe.dk",
+            "Ssl": true,
+            "StatusCode": 404,
+            "Gzip": true
+        }
+    ]
+}

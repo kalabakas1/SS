@@ -1,0 +1,736 @@
+﻿@using MPE.SS.Enums
+@using MPE.SS.Logic.Charts.HaProxy
+@using MPE.SS.Logic.Rendering.ViewModels
+@using MPE.SS.Models
+@using MPE.SS.Models.HaProxy
+@using MPE.SS.Models.MongoDB
+@using MPE.SS.Models.RedisInfo
+@using MPE.SS.Models.ServerInfo
+@using RazorEngine.Text
+@using Chart = MPE.SS.Models.Graphs.Chart
+@using ServerInfo = MPE.SS.Models.ServerInfo.ServerInfo
+@model View<Report>
+<!DOCTYPE HTML>
+<html>
+<head>
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css'>
+    <link rel='stylesheet' href='http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.css'>
+    <script src='https://code.jquery.com/jquery-3.1.1.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <script src='http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js'></script>
+    <script src='https://cdn.rawgit.com/cpettitt/dagre/v0.7.4/dist/dagre.min.js'></script>
+    <script src='https://cdn.rawgit.com/cytoscape/cytoscape.js-dagre/1.1.2/cytoscape-dagre.js'></script>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.js'></script>
+
+    @foreach (var link in Model.Links)
+    {
+        <style>
+            @(new RawString(link)) 
+        </style>
+    }
+
+    @foreach (var script in Model.Scripts)
+    {
+        <script>
+            @(new RawString(script))
+        </script>
+    }
+    <script>
+        $(function() {
+            var cy = window.cy = cytoscape({
+                container: document.getElementById('server-graph'),
+                boxSelectionEnabled: false,
+                autounselectify: true,
+                layout: {
+                    name: 'concentric',
+                    animate: true
+                },
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'content': 'data(id)',
+                            'text-opacity': 0.5,
+                            'text-valign': 'center',
+                            'text-halign': 'right',
+                            'background-color': '#11479e'
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 4,
+                            'target-arrow-shape': 'triangle',
+                            'line-color': '#9dbaea',
+                            'target-arrow-color': '#9dbaea',
+                            'curve-style': 'bezier'
+                        }
+                    },
+                    {
+                        selector: ':parent',
+                        style: {
+                            'background-opacity': 0.5
+                        }
+                    }
+                ],
+                elements: {
+                    nodes: [
+                        @(new RawString(Model.GenerateNodesString()))
+                    ],
+                    edges: [
+                        @(new RawString(Model.GenerateEdgesString()))
+                    ]
+                },
+            });
+
+            cy.elements()
+                .qtip({
+                    content: function() { return this.scratch().data },
+                    position: {
+                        my: 'top center',
+                        at: 'bottom center'
+                    },
+                    style: {
+                        classes: 'qtip-bootstrap',
+                        tip: {
+                            width: 16,
+                            height: 8
+                        }
+                    }
+                });
+        });
+    </script>
+</head>
+<body style="margin-top: 20px;">
+<div class='container-fluid'>
+    <div class='col-md-12'>
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+                <a href="#graph" aria-controls="home" role="tab" data-toggle="tab">Graph</a>
+            </li>
+            <li role="presentation">
+                <a href="#tests" aria-controls="home" role="tab" data-toggle="tab">Tests</a>
+            </li>
+            @foreach (var type in Enum.GetValues(typeof(DataCollector)))
+            {
+                var serversByType = Model.Model.Configuration.Servers.Where(x => x.CollectedData.Any(z => z.Key == (DataCollector) type)).ToList();
+                <li role="presentation" class="dropdown">
+                    <a href="#" class="dropdown-toggle" id="@(type)-servers" data-toggle="dropdown" aria-controls="@(type)-myTabDrop1-contents" aria-expanded="false">
+                        @(type.ToString().Replace("Info", string.Empty))<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="@(type)-myTabDrop1" id="@(type)-myTabDrop1-contents">
+                        @{
+                            var serverType = "";
+                        }
+                        @foreach (var server in serversByType)
+                        {
+                            if (serverType != server.Label)
+                            {
+                                serverType = server.Label;
+                                <li class="nav-header" style="font-weight: bold; margin-left: 10px;">@serverType</li>
+                            }
+                            <li>
+                                <a href="#server-@(type)-graph-@(server.Name.Replace(".", string.Empty))" role="tab" id="server-@(type)-graph-@(server.Name.Replace(".", string.Empty))-tab" data-toggle="tab" aria-controls="server-@(type)-graph-@(server.Name.Replace(".", string.Empty))">@(server.Name)</a>
+                            </li>
+                        }
+                    </ul>
+                </li>
+            }
+            <li role="presentation">
+                <a href="#charts" aria-controls="home" role="tab" data-toggle="tab">Charts</a>
+            </li>
+            <li role="presentation" class="pull-right">Last updated: @Model.Model.LastUpdated</li>
+        </ul>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane" id="tests">
+                <div class="panel panel-default">
+                    @{
+                        var guid = Guid.NewGuid();
+                    }
+
+                    <div class="panel-body">
+                        <div class="col-md-6 col-xs-6">
+                            <div class="panel-group" id="accordion-tests" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="heading-@(guid)">
+                                        <h4 class="panel-title">
+                                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-@(guid)" aria-expanded="true" aria-controls="collapse-@(guid)">
+                                                <span class="badge" style="font-size: 16px;">INFO</span> @(Model.Model.Header)
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapse-@(guid)" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-@(guid)">
+                                        <div class="panel-body">
+                                            <dl class="dl-horizontal">
+                                                @RenderRow("Description", Model.Model.Description)
+                                                @RenderRow("Start", Model.Model.Start)
+                                                @RenderRow("End", Model.Model.End)
+                                            </dl>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h2>Tests</h2>
+                                @RenderItems(Model.Model.ReportItem.ReportItems)
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xs-6">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane active" id="graph">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id='server-graph'></div>
+                        <div style='height: 100%;'></div>
+                    </div>
+                </div>
+            </div>
+            @foreach (var type in Enum.GetValues(typeof(DataCollector)))
+            {
+                var serversByType = Model.Model.Configuration.Servers.Where(x => x.CollectedData.Any(z => z.Key == (DataCollector) type)).ToList();
+                foreach (var server in serversByType)
+                {
+                    <div role="tabpanel" class="tab-pane" id="server-@(type)-graph-@(server.Name.Replace(".", string.Empty))">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <h2>@server.Name</h2>
+                                <div class="row-fluid">
+                                    @{
+                                        var charts = Model.Model.Charts.Where(x => x.DataCollector == (DataCollector) type && x.Server == server.Name).ToList();
+                                    }
+                                    @switch ((DataCollector) type)
+                                    {
+                                        case DataCollector.SystemInfo:
+                                            @RenderServer((ServerInfo) server.CollectedData[DataCollector.SystemInfo], charts)
+                                            break;
+                                        case DataCollector.RedisInfo:
+                                            @RenderRedis((RedisInfo) server.CollectedData[DataCollector.RedisInfo], charts)
+                                            break;
+                                        case DataCollector.MongoDbInfo:
+                                            @RenderMongo((MongoInfo) server.CollectedData[DataCollector.MongoDbInfo], charts)
+                                            break;
+                                        case DataCollector.HaProxyInfo:
+                                            @RenderHaProxy((HapInfo) server.CollectedData[DataCollector.HaProxyInfo], charts)
+                                            break;
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            <div role="tabpanel" class="tab-pane" id="charts">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        @{
+                            var orderedCharts = Model.Model.Charts.OrderBy(x => x.Server).ToList();
+                            var serverName = "";
+                        }
+
+                        <div class="row-fluid">
+                            <div class="col-md-12" style="margin-bottom: 20px;">
+                                <div id="chart-carousel" class="carousel slide" data-ride="carousel" style="height: 350px;">
+                                    @{
+                                        var first = true;
+                                    }
+                                    <div class="carousel-inner" role="listbox">
+                                        @foreach (var chart in orderedCharts)
+                                        {
+                                            <div class="item @(first ? "active" : "")">
+                                                <div class="carousel-item">
+                                                    @RenderChart(chart, 300, string.Format("{0} - {1} - {2}", chart.DataCollector.ToString().Replace("Info", string.Empty), chart.Server, chart.Name))
+                                                </div>
+                                            </div>
+                                            first = false;
+                                        }
+                                    </div>
+
+                                    <a class="left carousel-control" href="#chart-carousel" role="button" data-slide="prev">
+                                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                    <a class="right carousel-control" href="#chart-carousel" role="button" data-slide="next">
+                                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row-fluid">
+                            @foreach (var chart in orderedCharts)
+                            {
+                                if (chart != null && !string.IsNullOrEmpty(chart.Name))
+                                {
+                                    if (chart.Server != serverName)
+                                    {
+                                        serverName = chart.Server;
+                                        <div class="col-md-12 col-xs-12">
+                                            <h3>@serverName</h3>
+                                        </div>
+                                    }
+
+                                    <div class="col-md-4 col-xs-6">
+                                        @RenderChart(chart, 150, string.Format("{0} - {1}", chart.DataCollector.ToString().Replace("Info", string.Empty), chart.Name))
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+@helper RenderCharts(List<Chart> charts)
+{
+    <div class="col-md-6">
+        @foreach (var chart in charts)
+        {
+            @RenderChart(chart)
+        }
+    </div>
+}
+
+@helper RenderChart(Chart chart, int height = 250, string name = "")
+{
+    if (chart.DataSets == null || !chart.DataSets.Any() || chart.Name == null || chart.Server == null)
+    {
+        return;
+    }
+    var id = string.Format("{0}-{1}-{2}", chart.DataCollector, chart.Server, Guid.NewGuid());
+    <script>
+        $(function() {
+            var ctx = document.getElementById('@(id)').getContext('2d');
+            ctx.canvas.height = @(height);
+            var chart = new Chart(ctx,
+            {
+                options: {
+                    responsive: true,
+                    scaleStartValue: 0,
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [
+                            {
+                                display: false
+                            }
+                        ],
+                        yAxes: [
+                            {
+                                ticks: {
+                                    min: 0,
+                                    beginAtZero: true
+                                }
+                            }
+                        ]
+                    },
+                    elements: {
+                        point:
+                        {
+                            radius: 2
+                        }
+                    }
+                },
+                type: 'line',
+                data: {
+                    labels: @(new RawString(chart.DataSets.First().RenderLabels())),
+                    datasets: [
+                        @foreach (var set in chart.DataSets.Where(x => x != null))
+                        {
+                            @(new RawString(string.Format(@"{{
+                                label: '{0}',
+                        lineTension: 0,
+                        data: {1},
+                        backgroundColor: '{2}',
+                        {3}
+                                        }},", set.Label, set.RenderPoints(), set.Color, set.DontFill ? "fill: false," : "")))
+                        }
+                    ]
+                }
+            });
+        })
+    </script>
+    <div class="panel panel-default ss-info-section" style="margin-bottom: 5px;">
+        <div class="panel-heading">@(!string.IsNullOrEmpty(name) ? name : chart.Name)</div>
+        <div class="panel-body" style="display: block !important;">
+            <div class="row-fluid">
+                <div class="col-md-12" style="height: @(height)px; max-height: @(height)px;">
+                    <canvas id="@(id)"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@helper RenderItems(List<ReportItem> items)
+{
+    foreach (var item in items)
+    {
+        @RenderItem(item)
+    }
+}
+
+@helper RenderItem(ReportItem item)
+{
+    if (item == null)
+    {
+        return;
+    }
+    var guid = Guid.NewGuid().ToString();
+    <div class="panel panel-@Alert(item.State)">
+        <div class="panel-heading" role="tab" id="heading-@(guid)">
+            <h4 class="panel-title">
+                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-@(guid)" aria-expanded="true" aria-controls="collapse-@(guid)">
+                    <span class='glyphicon @Icon(item.State)' aria-hidden='true' style='margin-right: 10px;'></span>
+                    @item.Header @(item.ReportItems != null && item.ReportItems.Any() ? string.Format("({0})", item.ReportItems.Count) : "")
+                </a>
+            </h4>
+        </div>
+        @if (!string.IsNullOrEmpty(item.Elaboration) || (item.ReportItems != null && item.ReportItems.Any()))
+        {
+            <div id="collapse-@(guid)" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-@(guid)">
+                <div class="panel-body">
+                    @if (!string.IsNullOrEmpty(item.Elaboration))
+                    {
+                        @item.Elaboration
+                    }
+
+                    @if (item.ReportItems != null && item.ReportItems.Any())
+                    {
+                        @RenderItems(item.ReportItems)
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@helper Icon(ReportItemState state)
+{
+    switch (state)
+    {
+        case ReportItemState.Failure:
+            @("glyphicon-fire")
+            break;
+        case ReportItemState.Warning:
+            @("glyphicon-warning-sign")
+            break;
+        default:
+            @("glyphicon-ok")
+            break;
+    }
+}
+
+@helper Alert(ReportItemState state)
+{
+    switch (state)
+    {
+        case ReportItemState.Failure:
+            @("danger");
+            break;
+        case ReportItemState.Warning:
+            @("warning");
+            break;
+        default:
+            @("success");
+            break;
+    }
+}
+
+@helper RenderHaProxy(HapInfo info, List<Chart> charts)
+{
+    var responseChart = charts.FirstOrDefault();
+    if (responseChart != null)
+    {
+        <div class="col-md-12">
+            @RenderChart(responseChart)
+        </div>
+    }
+    <div class="col-md-6">
+        @foreach (var proxy in info.ProxyNames)
+        {
+            var servers = info.Servers.Where(x => x.ProxyName == proxy);
+            <div class="panel panel-default ss-info-section">
+                <div class="panel-heading">@proxy</div>
+                <div class="panel-body">
+                    <table class="table">
+                        <thead>
+                        <th class="col-md-3">Name</th>
+                        <th class="col-md-2">Status</th>
+                        <th class="col-md-1">Sessions</th>
+                        <th class="col-md-1>Rate</th>
+                        <th class="col-md-2">Rate (Max)</th>
+                        <th class="col-md-1">In (MB)</th>
+                        <th class="col-md-1">Out (MB)</th>
+                        <th class="col-md-1">Avg. Resp. (ms)</th>
+                        </thead>
+                        <tbody>
+                        @foreach (var server in servers)
+                        {
+                            <tr class="@(server.Status == "UP" ? "success" : (server.Status == "DOWN" ? "danger" : "warning"))">
+                                <td>@server.ServiceName</td>
+                                <td>@server.Status</td>
+                                <td>@server.CurrentSessions</td>
+                                <td>@server.MaxSessions</td>
+                                <td>@(server.BytesIn / 1024 / 1024)</td>
+                                <td>@(server.BytesOut / 1024 / 1024)</td>
+                                <td>@(server.AverageResponseTimeInMils)</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="col-md-6">
+        @foreach (var chart in charts.Where(x => x != responseChart))
+        {
+            @RenderChart(chart)
+        }
+    </div>
+}
+
+@helper RenderMongo(MongoInfo info, List<Chart> charts)
+{
+    <div class="col-md-6">
+        <div class="col-md-6 col-xs-6">
+            <div class="panel panel-default ss-info-section">
+                <div class="panel-heading">Summary</div>
+                <div class="panel-body">
+                    <dl class="dl-horizontal">
+                        @RenderRow("Version", info.Version)
+                        @RenderRow("Process ID", info.Pid)
+                        @RenderRow("Process", info.Process)
+                        @RenderRow("Uptime", new TimeSpan(0, 0, 0, info.Uptime))
+                        @RenderRow("Uptime Estimate", new TimeSpan(0, 0, 0, info.UptimeEstimate))
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xs-6">
+            @if (info.Connections != null)
+            {
+                <div class="panel panel-default ss-info-section">
+                    <div class="panel-heading">Connections</div>
+                    <div class="panel-body">
+                        <dl class="dl-horizontal">
+                            @RenderRow("Available", info.Connections.Available)
+                            @RenderRow("Current", info.Connections.Current)
+                            @RenderRow("Total created", info.Connections.TotalCreated)
+                        </dl>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    @RenderCharts(charts)
+}
+
+@helper RenderRedis(RedisInfo info, List<Chart> charts)
+{
+    <div class="col-md-6">
+        <div class="col-md-6 col-xs-6">
+            @if (info.Server != null)
+            {
+                <div class="panel panel-default ss-info-section">
+                    <div class="panel-heading">Server</div>
+                    <div class="panel-body">
+                        <dl class="dl-horizontal">
+                            @RenderRow("Uptime", new TimeSpan(0, 0, 0, (int) info.Server.UptimeInSec)))
+                            @RenderRow("Version", info.Server.Version)
+                            @RenderRow("Executable", info.Server.Executable)
+                            @RenderRow("Config file", info.Server.ConfigFile)
+                        </dl>
+                    </div>
+                </div>
+            }
+
+            @if (info.Statistic != null)
+            {
+                <div class="panel panel-default ss-info-section">
+                    <div class="panel-heading">Statistics</div>
+                    <div class="panel-body">
+                        <dl class="dl-horizontal">
+                            @RenderRow("Total connections", info.Statistic.TotalConnectionsReceived)
+                            @RenderRow("Total commands", info.Statistic.TotalCommandProcessed)
+                            @RenderRow("Expired keys", info.Statistic.ExpiredKeys)
+                            @RenderRow("Evicted keys", info.Statistic.EvictedKeys)
+                            @RenderRow("Current ops/sec", info.Statistic.InstantaneousOpsPerSec)
+                            @RenderRow("Hits", info.Statistic.KeyspaceHits)
+                            @RenderRow("Misses", info.Statistic.KeyspaceMisses)
+                        </dl>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="col-md-6 col-xs-6">
+            @if (info.Memory != null)
+            {
+                <div class="panel panel-default ss-info-section">
+                    <div class="panel-heading">Memory</div>
+                    <div class="panel-body">
+                        <dl class="dl-horizontal">
+                            @RenderRow("Max", info.Memory.MaxMemoryFormatted)
+                            @RenderRow("Used", info.Memory.UsedMemoryFormatted)
+                            @RenderRow("Peak", info.Memory.UsedMemoryPeakFormatted)
+                            @RenderRow("RSS", info.Memory.UsedMemoryRssFormatted)
+                            @RenderRow("Fragmentation", info.Memory.MemoryFragmentationRatio)
+                            @RenderRow("Allocator", info.Memory.MemoryAllocator)
+                        </dl>
+                    </div>
+                </div>
+            }
+
+            @if (info.Clients != null && info.Clients.Any())
+            {
+                <div class="panel panel-default ss-info-section">
+                    <div class="panel-heading">Clients (@(info.Clients.Count))</div>
+                    <div class="panel-body" style="max-height: 300px; overflow-y: scroll; overflow-x: hidden;">
+                        <div class="list-group">
+                            @foreach (var client in info.Clients)
+                            {
+                                <a href="#" class="list-group-item">
+                                    <h4 class="list-group-item-heading">@(client.Address) - @(client.Name)</h4>
+                                    <p class="list-group-item-text">
+                                        @(client.Command) (idle: @(new TimeSpan(0, 0, 0, client.IdleInSec)))
+                                    </p>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    @RenderCharts(charts)
+}
+
+@helper RenderServer(ServerInfo info, List<Chart> charts)
+{
+    <div class="col-md-6">
+        <div class="col-md-6 col-xs-6">
+            @if (info.Cpu != null)
+            {
+                <div class="panel panel-default ss-info-section">
+                    <div class="panel-heading">CPU</div>
+                    <div class="panel-body">
+                        <dl class="dl-horizontal">
+                            @RenderRow("Name", info.Cpu.Name)
+                            @RenderRow("Manufacture", info.Cpu.Manufacturer)
+                            @RenderRow("Clockspeed", info.Cpu.ClockSpeed)
+                            @RenderRow("Cores", info.Cpu.Cores)
+                            @RenderRow("Logic processors", info.Cpu.LogicProcessors)
+                            @RenderRow("Description", info.Cpu.Description)
+                            @RenderRow("Socket", info.Cpu.Socket)
+                        </dl>
+                    </div>
+                </div>
+            }
+            @if (info.RAM != null)
+            {
+                <div class="panel panel-default ss-info-section">
+                    <div class="panel-heading">RAM</div>
+                    <div class="panel-body">
+                        <dl class="dl-horizontal">
+                            @RenderRow("Total GB", info.RAM.TotalGb)
+                            @RenderRow("Free GB", info.RAM.FreeGb)
+                            @RenderRow("Used GB", info.RAM.UsedGb)
+                        </dl>
+                    </div>
+                </div>
+            }
+            @if (info.Disk != null && info.Disk.Any())
+            {
+                <div class="panel panel-default ss-info-section">
+                    <div class="panel-heading">Disks</div>
+                    <div class="panel-body">
+                        @foreach (var disk in info.Disk)
+                        {
+                            <u>@disk.Letter</u><br/>
+                            <dl class="dl-horizontal">
+                                @RenderRow("Free space", disk.FreeSpaceMb)
+                                @RenderRow("Total space", disk.TotalSpaceMb)
+                            </dl>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="col-md-6 col-xs-6">
+            @if (info.Ip != null && info.Ip.Any())
+            {
+                <div class="panel panel-default ss-info-section">
+                    <div class="panel-heading">IP-addresses</div>
+                    <div class="panel-body">
+                        @foreach (var ip in info.Ip)
+                        {
+                            <dl class="dl-horizontal">
+                                @RenderRow("Ip", ip.Name)
+                                @RenderRow("MAC", ip.Mac)
+                            </dl>
+                        }
+                    </div>
+                </div>
+            }
+            @if (info.System != null)
+            {
+                <div class="panel panel-default ss-info-section">
+                    <div class="panel-heading">System</div>
+                    <div class="panel-body">
+                        <dl class="dl-horizontal">
+                            @RenderRow("Hardware Manufacturer", info.System.HardwareManufacturer)
+                            @RenderRow("Hardware Model", info.System.HardwareModel)
+                            @RenderRow("Logged On User", info.System.LoggedOnUser)
+                            @RenderRow("Physical Memory Mb", info.System.PhysicalMemoryMb)
+                        </dl>
+                    </div>
+                </div>
+            }
+            @if (info.Bios != null)
+            {
+                <div class="panel panel-default ss-info-section">
+                    <div class="panel-heading">BIOS</div>
+                    <div class="panel-body">
+                        <dl class="dl-horizontal">
+                            @RenderRow("Name", info.Bios.Name)
+                            @RenderRow("Manufacture", info.Bios.Manufacturer)
+                            @RenderRow("Version", info.Bios.Version)
+                        </dl>
+                    </div>
+                </div>
+            }
+            @if (info.OS != null)
+            {
+                <div class="panel panel-default ss-info-section">
+                    <div class="panel-heading">OS</div>
+                    <div class="panel-body">
+                        <dl class="dl-horizontal">
+                            @RenderRow("Name", info.OS.Name)
+                            @RenderRow("Install date", info.OS.InstallDate != null ? info.OS.InstallDate.DateTime : "N/A")
+                            @RenderRow("Boottime", info.OS.BootTime != null ? info.OS.BootTime.DateTime : "N/A")
+                            @RenderRow("Language", info.OS.Language)
+                            @RenderRow("Pack", info.OS.ServicePack)
+                            @RenderRow("Device", info.OS.SystemDevice)
+                            @RenderRow("Drive", info.OS.SystemDrive)
+                            @RenderRow("Version", info.OS.Version)
+                            @RenderRow("Directory", info.OS.WindowsDirectory)
+                        </dl>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    @RenderCharts(charts)
+}
+
+@helper RenderRow(string name, object value)
+{
+    <dt>@name</dt>
+    <dd>@value</dd>
+}
