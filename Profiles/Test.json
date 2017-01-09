@@ -1,7 +1,7 @@
 ﻿{
-    "Alias": "Kilroy",
-    "Header": "Kilroy Staging Setup",
-    "Description": "This will take the configuration for the Kilroy staging infrestructure, hosted at Novicell, and run tests based on the configuration file. This includes checking on if app-pools, windows-services, scheduled tasks are running and enabled along with ensuring that windows features are enabled. Besides this it will check if a port to another server is oppened. A final set of tests is based on URLs that get requested, it will the check if compression and SSL is enabled along with the correct status code",
+    "Alias": "MPE",
+    "Header": "MPE Staging Setup",
+    "Description": "This will take the configuration for the MPE staging infrestructure, hosted at Novicell, and run tests based on the configuration file. This includes checking on if app-pools, windows-services, scheduled tasks are running and enabled along with ensuring that windows features are enabled. Besides this it will check if a port to another server is oppened. A final set of tests is based on URLs that get requested, it will the check if compression and SSL is enabled along with the correct status code",
     "Credentials": [
         {
             "Alias": "default",
@@ -236,11 +236,11 @@
             "CredentialAlias": "User",
             "Label": "DEV WEB",
             "DisplayName": "DEV01",
-            "Name": "KILROYDEV01",
+            "Name": "MPEDEV01",
             "AppPools": [
-                "api.kilroydev01.novicell.dk",
+                "api.MPEdev01.novicell.dk",
                 "benns.dk",
-                "umbraco.kilroydev01.novicell.dk"
+                "umbraco.MPEdev01.novicell.dk"
             ],
             "ScheduledTasks": [],
             "Services": [
@@ -296,7 +296,7 @@
             "CredentialAlias": "User",
             "Label": "CI",
             "DisplayName": "CI01",
-            "Name": "KILROY-CI01",
+            "Name": "MPE-CI01",
             "AppPools": [],
             "ScheduledTasks": [],
             "Services": [
